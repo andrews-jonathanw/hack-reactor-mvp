@@ -1,0 +1,21 @@
+/* styles/tailwind.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+canvas {
+  display: block;
+  background-color: black;
+  margin: 0 auto;
+}
+
+#gameCanvas {
+  border: 1px solid #000;
+  margin: 0 auto;
+  display: block;
+}
