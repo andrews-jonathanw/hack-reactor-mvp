@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import axios from 'axios'; // Import Axios
 
 export default function SignUp({ setShowForm }) {
   const [formData, setFormData] = useState({
@@ -7,7 +8,7 @@ export default function SignUp({ setShowForm }) {
     password: '',
   });
 
-  const formRef = useRef(null); // Create a ref to attach to your form element
+  const formRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -17,7 +18,7 @@ export default function SignUp({ setShowForm }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Perform client-side validation
@@ -40,9 +41,26 @@ export default function SignUp({ setShowForm }) {
       return;
     }
 
-    // Simulate form submission
-    console.log("Form is valid! Submitting...");
+    // Create a user object from form data
+    const newUser = {
+      username,
+      email,
+      password,
+    };
 
+    try {
+      // Send a POST request to your server to create a new user
+      const response = await axios.post('http://localhost:5000/api/users', newUser);
+
+      if (response.status === 201) {
+        console.log('New user created:', response.data);
+        // Handle the successful creation of the user here.
+      } else {
+        console.error('Failed to create a new user');
+      }
+    } catch (error) {
+      console.error('Error creating a new user:', error);
+    }
 
     // Reset form fields
     formRef.current.reset();
