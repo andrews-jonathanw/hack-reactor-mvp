@@ -4,10 +4,44 @@ const cors = require('cors');
 const WebSocket = require('ws');
 const port = process.env.PORT || 5000;
 const pool = require('../db/db.js');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = ['http://localhost:3000', null];
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
 
 const app = express();
+app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
+
+// Auth
+const authenticateJWT = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+      req.user = user;
+      next();
+    });
+  } else {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+};
+
 
 // Initialize a WebSocket server
 const wss = new WebSocket.Server({ noServer: true });
@@ -110,6 +144,15 @@ app.post('/api/login', async (req, res) => {
     }
 
     // Authentication successful, respond with user data or token
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: '1d', // expires in 1 day
+    });
+    res.cookie('token', token, {
+      httpOnly: true,
+    });
+    res.cookie('user_info', JSON.stringify({ username, userId }), {
+      expires: '1d',
+    });
     res.status(200).json({ message: 'Login successful', user });
   } catch (error) {
     console.error('Error during login:', error);
@@ -117,7 +160,12 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.post('/api/submitScore', async (req, res) => {
+app.post('/api/logout', (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({ message: 'Logged out' });
+});
+
+app.post('/api/submitScore', authenticateJWT, async (req, res) => {
   try {
     const { userId, score } = req.body;
 

@@ -45,6 +45,10 @@ const HighScores = () => {
     };
   }, []);
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   return (
     <div className="p-4 bg-gray-100 border border-gray-300 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">High Scores</h2>
@@ -56,7 +60,7 @@ const HighScores = () => {
               index % 2 === 0 ? 'bg-gray-200' : ''
             }`}
           >
-            <span className="font-bold">{score.username}</span>
+            <span className="font-bold">{capitalizeFirstLetter(score.username)}</span>
             <span className="text-gray-600">{score.score}</span>
           </li>
         ))}

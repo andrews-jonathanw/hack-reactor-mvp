@@ -26,7 +26,7 @@ console.log('UserId:', userId);
 export let gameOver = false;
 export let win = false;
 export let isPaused = false;
-export let round = 20;
+export let round = 1;
 export let score = 0;
 export let lives = 3;
 export const powerUpOrbs = [];
@@ -262,7 +262,7 @@ export function handleButtonClick(event) {
 function sendScoreToAPI(score) {
   const apiUrl = 'http://localhost:5000/api/submitScore';
 
-  axios.post(apiUrl, { userId, score })
+  axios.post(apiUrl, { userId, score }, { withCredentials: true })
     .then((response) => {
       console.log('Score sent to API successfully:', response.data);
     })

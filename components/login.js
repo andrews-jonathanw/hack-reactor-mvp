@@ -42,7 +42,9 @@ export default function LogIn({ setShowForm, setIsLoggedIn, sucessLoginMsg }) {
     };
     console.log(userCredentials)
     try {
-      const response = await axios.post('http://localhost:5000/api/login', userCredentials);
+      const response = await axios.post('http://localhost:5000/api/login', userCredentials, {
+        withCredentials: true
+      });
       if (response.status === 200) {
 
         console.log('User logged in:', response.data);
