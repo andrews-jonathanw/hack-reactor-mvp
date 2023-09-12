@@ -2,11 +2,14 @@ import React from 'react';
 
 const GAME_URL = "/index.html";
 
-const GameContainer = () => {
+const GameContainer = ({ user, userId }) => {
+  console.log(user)
+  const gameUrlWithUserData = `${GAME_URL}?userId=${userId}`;
+
   return (
     <div>
       <iframe
-      src={GAME_URL}
+      src={gameUrlWithUserData}
       className="iframe"
       title="Space Wars"
       frameBorder="0"

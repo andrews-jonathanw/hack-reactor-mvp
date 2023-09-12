@@ -21,6 +21,8 @@ import {
   animationId,
 } from './main.js';
 
+console.log('UserId:', userId);
+
 export let gameOver = false;
 export let win = false;
 export let isPaused = false;
@@ -139,7 +141,7 @@ lives -= 1;
 }
 
 export function checkGameOver() {
-if (lives === 0) {
+if (lives <= 0) {
   resetAliens();
   gameOver = true;
   return;
@@ -249,9 +251,24 @@ export function handleButtonClick(event) {
     clickY <= canvas.height / 2 + 60
   ) {
     if (currentButtonCallback) {
+      if(gameOver && currentButtonCallback === restartGame) {
+        sendScoreToAPI(score);
+      }
       currentButtonCallback(); // Call the current button action
     }
   }
+}
+
+function sendScoreToAPI(score) {
+  const apiUrl = 'http://localhost:5000/api/submitScore';
+
+  axios.post(apiUrl, { userId, score })
+    .then((response) => {
+      console.log('Score sent to API successfully:', response.data);
+    })
+    .catch((error) => {
+      console.error('Error sending score to API:', error);
+    });
 }
 
 // Add an event listener to toggle pause when the Escape key is pressed

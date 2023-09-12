@@ -4,9 +4,18 @@
     <meta charset="UTF-8">
     <title>Space Wars</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+      // Function to get the "user" query parameter from the URL
+      function getUsernameQueryParam() {
+        const queryParams = new URLSearchParams(window.location.search);
+        return queryParams.get('userId');
+      }
+      const userId = getUsernameQueryParam();
+    </script>
     <script type="module" src="main.js"></script>
     <script type="module" src="game.js"></script>
     <script type="module" src="powerups.js"></script>

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios'; // Import Axios
 
-export default function SignUp({ setShowForm }) {
+export default function SignUp({ setShowForm, sucessCreateUserMsg }) {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -54,7 +54,8 @@ export default function SignUp({ setShowForm }) {
 
       if (response.status === 201) {
         console.log('New user created:', response.data);
-        // Handle the successful creation of the user here.
+        sucessCreateUserMsg();
+
       } else {
         console.error('Failed to create a new user');
       }
