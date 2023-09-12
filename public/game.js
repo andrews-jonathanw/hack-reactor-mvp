@@ -24,7 +24,7 @@ import {
 export let gameOver = false;
 export let win = false;
 export let isPaused = false;
-export let round = 1;
+export let round = 20;
 export let score = 0;
 export let lives = 3;
 export const powerUpOrbs = [];
