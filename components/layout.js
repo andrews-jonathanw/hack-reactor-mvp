@@ -1,9 +1,20 @@
+import { useRouter } from 'next/router';
+
 export default function Layout({ children }) {
+  const router = useRouter();
+
+
+  const navigateHome = () => {
+    router.push('/');
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="bg-blue-600 text-white p-4">
         <div className="container mx-auto">
-          <h1 className="text-2xl font-bold">Space Wars</h1>
+          <h1 className="text-2xl font-bold cursor-pointer" onClick={navigateHome}>
+            Space Wars
+          </h1>
         </div>
       </header>
       <main className="flex-grow">
@@ -25,4 +36,5 @@ export default function Layout({ children }) {
     </div>
   );
 }
+
 

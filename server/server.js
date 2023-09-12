@@ -1,12 +1,73 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const WebSocket = require('ws');
 const port = process.env.PORT || 5000;
 const pool = require('../db/db.js');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = ['http://localhost:3000', null];
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
 
 const app = express();
+app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
+
+// Auth
+const authenticateJWT = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+      req.user = user;
+      next();
+    });
+  } else {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+};
+
+
+// Initialize a WebSocket server
+const wss = new WebSocket.Server({ noServer: true });
+
+// Keep track of connected clients
+let connectedClients = [];
+
+// Broadcasts data to all connected WebSocket clients
+const broadcast = (data) => {
+  connectedClients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(data));
+    }
+  });
+};
+
+// WebSocket connection setup
+wss.on('connection', (ws) => {
+  // Add this client to the connectedClients array
+  connectedClients.push(ws);
+
+  ws.on('close', () => {
+    // Remove this client from connectedClients array
+    connectedClients = connectedClients.filter((client) => client !== ws);
+  });
+});
 
 app.get('/api/highscores', async (req, res) => {
   try {
@@ -57,6 +118,89 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
+app.post('/api/login', async (req, res) => {
+  try {
+    // Extract user credentials from the request body
+    const { username, password } = req.body;
+
+    // Validate user credentials (you can add more validation here)
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Invalid user credentials' });
+    }
+
+    // Query the database to find the user by username
+    const findUserQuery = 'SELECT * FROM users WHERE username = $1';
+    const result = await pool.query(findUserQuery, [username]);
+
+    // Check if the user exists
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    // Check if the provided password matches the stored password
+    const user = result.rows[0];
+    if (password !== user.password) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    // Authentication successful, respond with user data or token
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: '1d', // expires in 1 day
+    });
+    res.cookie('token', token, {
+      httpOnly: true,
+    });
+    res.cookie('user_info', JSON.stringify({ username, userId }), {
+      expires: '1d',
+    });
+    res.status(200).json({ message: 'Login successful', user });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/logout', (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({ message: 'Logged out' });
+});
+
+app.post('/api/submitScore', authenticateJWT, async (req, res) => {
+  try {
+    const { userId, score } = req.body;
+
+    if (!userId || !score) {
+      return res.status(400).json({ error: 'Invalid score data' });
+    }
+
+    const insertScoreQuery = `
+      INSERT INTO scores (user_id, score)
+      VALUES ($1, $2)
+      RETURNING id, user_id, score;
+    `;
+
+    const result = await pool.query(insertScoreQuery, [userId, score]);
+    const newScore = result.rows[0];
+
+    // Notify all connected WebSocket clients about the new high score
+    broadcast({ event: 'newHighScore', newScore });
+
+    res.status(201).json(newScore);
+  } catch (error) {
+    console.error('Error creating a new score:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+// Integrate WebSocket into existing HTTP server
+app.server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+// Handle WebSocket upgrade requests
+app.server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit('connection', ws, request);
+  });
 });

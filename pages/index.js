@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Layout from '../components/layout';
 import SignUp from '../components/signUp';
 import LogIn from '../components/logIn';
-
+import toast, { Toaster } from 'react-hot-toast';
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showForm, setShowForm] = useState(null);
@@ -16,8 +16,18 @@ export default function App() {
     }
   };
 
+  const sucessLoginMsg = () => {
+    toast.success("Login Successful!\nRedirecting to game...");
+  };
+
+  const sucessCreateUserMsg = () => {
+    toast.success("Account Creation Successful!\Please login...");
+  };
+
   return (
+
     <div className="container mx-auto px-4">
+      <Toaster/>
       {!isLoggedIn && <h2 className="text-2xl font-bold mb-4">Welcome sign in below!</h2>}
 
       <button onClick={() => toggleForm('signup')} className="bg-blue-500 text-white p-2 rounded-md m-2">
@@ -31,14 +41,14 @@ export default function App() {
         {showForm === 'signup' && (
           <div className="bg-gray-100 p-4 rounded-md">
             <h3 className="text-xl font-semibold mb-2">Sign Up</h3>
-            <SignUp setShowForm={setShowForm} />
+            <SignUp setShowForm={setShowForm} sucessCreateUserMsg={sucessCreateUserMsg}/>
           </div>
         )}
 
         {showForm === 'login' && (
           <div className="bg-gray-100 p-4 rounded-md">
             <h3 className="text-xl font-semibold mb-2">Log In</h3>
-            <LogIn setShowForm={setShowForm} setIsLoggedIn={setIsLoggedIn} />
+            <LogIn setShowForm={setShowForm} setIsLoggedIn={setIsLoggedIn} sucessLoginMsg={sucessLoginMsg} />
           </div>
         )}
       </div>
