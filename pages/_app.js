@@ -1,12 +1,14 @@
 import Layout from '../components/layout';
 import '../styles/tailwind.css';
-
+import { UserProvider } from '../components/UserContext';
 
 function MyApp({ Component, pageProps }) {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <UserProvider>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </UserProvider>
   );
 }
 

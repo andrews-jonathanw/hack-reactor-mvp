@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios'; // Import Axios
 
-export default function SignUp({ setShowForm, sucessCreateUserMsg }) {
+export default function SignUp({ setShowForm, successCreateUserMsg, errorCreateUserMsg }) {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
   });
-
+  const [errorMessage, setErrorMessage] = useState('');
   const formRef = useRef(null);
 
   const handleChange = (e) => {
@@ -25,7 +25,6 @@ export default function SignUp({ setShowForm, sucessCreateUserMsg }) {
     const username = formData.username;
     const email = formData.email;
     const password = formData.password;
-
     if (!username || username.length < 3) {
       alert("Username must be at least 3 characters long");
       return;
@@ -54,18 +53,23 @@ export default function SignUp({ setShowForm, sucessCreateUserMsg }) {
 
       if (response.status === 201) {
         console.log('New user created:', response.data);
-        sucessCreateUserMsg();
-
+        successCreateUserMsg();
+        setShowForm(null);
       } else {
         console.error('Failed to create a new user');
       }
     } catch (error) {
-      console.error('Error creating a new user:', error);
+      let errorMessage = 'An unknown error occurred';
+      if (error && error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      }
+      setErrorMessage(errorMessage);
+      errorCreateUserMsg(errorMessage)
     }
 
     // Reset form fields
     formRef.current.reset();
-    setShowForm(null);
+
   };
 
   return (

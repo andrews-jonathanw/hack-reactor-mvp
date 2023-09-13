@@ -3,7 +3,6 @@ import React from 'react';
 const GAME_URL = "/index.html";
 
 const GameContainer = ({ user, userId }) => {
-  console.log(user)
   const gameUrlWithUserData = `${GAME_URL}?userId=${userId}`;
 
   return (
