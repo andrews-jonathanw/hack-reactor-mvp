@@ -21,14 +21,6 @@ export default function App() {
   const prevIsLoggedInRef = useRef();
 
   useEffect(() => {
-    const prevIsLoggedIn = prevIsLoggedInRef.current;
-    if (prevIsLoggedIn && !isLoggedIn) {
-      successLogoutMsg();
-    }
-    prevIsLoggedInRef.current = isLoggedIn;
-  }, [isLoggedIn]);
-
-  useEffect(() => {
     if (userInfo !== null) {
       setUser(userInfo);
       setIsLoggingIn(false);
@@ -49,15 +41,21 @@ export default function App() {
     if (router.query.needLogin) {
       toast.error("Login first to visit the account page!");
     }
+    router.replace({
+      pathname: router.pathname,
+      query: {},
+    });
   }, [router.query]);
 
   useEffect(() => {
     if (router.query.status === 'loggedOut') {
       toast.success("You've been logged out!");
     }
+    router.replace({
+      pathname: router.pathname,
+      query: {},
+    });
 }, [router.query]);
-
-
 
   const toggleForm = (formType) => {
     if (showForm === formType) {
@@ -89,10 +87,10 @@ export default function App() {
 
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 flex flex-col items-center justify-center h-screen">
       <Toaster />
       {isLoggingIn ? (
-        <div className="flex items-center justify-center">
+        <div className="flex items-center">
           <div className="loader"></div>
           <h2 className="text-2xl font-bold mb-4 ml-4">Logging in...</h2>
         </div>
@@ -104,36 +102,39 @@ export default function App() {
             <h2 className="text-2xl font-bold mb-4">Welcome, sign in below!</h2>
           )}
 
-          <button onClick={() => toggleForm('signup')} className="bg-blue-500 text-white p-2 rounded-md m-2">
-            Create an Account
-          </button>
-
-          {isLoggedIn ? (
-
-            user && user.username ? (
-              <button
-                onClick={() => {
-                  const validUsername = user.username;
-                  const userId = user.id;
-                  router.push({
-                    pathname: '/gamePage',
-                    query: { userId, validUsername },
-                  });
-                }}
-                className="bg-green-500 text-white p-2 rounded-md m-2"
-              >
-                Play Game
+          <div className="flex flex-col items-center">
+            {!isLoggedIn && (
+              <button onClick={() => toggleForm('signup')} className="bg-blue-500 text-white p-2 rounded-md m-2">
+                Create an Account
               </button>
-            ) : (
-              <div>Loading...</div>
-            )
-          ) : (
-            <button onClick={() => toggleForm('login')} className="bg-blue-500 text-white p-2 rounded-md m-2">
-              Have an Account Already? Sign In Here!
-            </button>
-          )}
+            )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {isLoggedIn ? (
+              user && user.username ? (
+                <button
+                  onClick={() => {
+                    const validUsername = user.username;
+                    const userId = user.id;
+                    router.push({
+                      pathname: '/gamePage',
+                      query: { userId, validUsername },
+                    });
+                  }}
+                  className="bg-green-500 text-white p-4 rounded-md m-4"
+                >
+                  Play Game
+                </button>
+              ) : (
+                <div>Loading...</div>
+              )
+            ) : (
+              <button onClick={() => toggleForm('login')} className="bg-blue-500 text-white p-2 rounded-md m-2">
+                Have an Account Already? Sign In Here!
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-col items-center">
             {showForm === 'signup' && (
               <div className="bg-gray-100 p-4 rounded-md">
                 <h3 className="text-xl font-semibold mb-2">Sign Up</h3>
@@ -170,5 +171,8 @@ export default function App() {
       `}</style>
     </div>
   );
+
+
+
 }
 

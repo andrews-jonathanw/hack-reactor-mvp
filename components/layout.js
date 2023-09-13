@@ -32,9 +32,9 @@ export default function Layout({ children }) {
             Space Wars
           </h1>
           <div className="flex space-x-4">
-            <button onClick={() => router.push('/account')} className="mx-2">Account</button>
-            <button onClick={() => router.push('/leaderboard')} className="mx-2">Leaderboard</button>
-            <button onClick={() => router.push('/store')} className="mx-2">Store</button>
+            <button onClick={() => router.push('/accountPage')} className="mx-2">Account</button>
+            <button onClick={() => router.push('/leaderboardPage')} className="mx-2">Leaderboard</button>
+            <button onClick={() => router.push('/storePage')} className="mx-2">Store</button>
             {isLoggedIn && <button onClick={logout} className="mx-2">Logout</button>}
           </div>
         </div>
@@ -42,7 +42,7 @@ export default function Layout({ children }) {
       <main className="flex-grow">
         {children}
       </main>
-      <footer className="bg-gray-800 text-white p-4">
+      <footer className="bg-gray-800 text-white p-4 fixed bottom-0 w-full">
         <div className="container mx-auto flex justify-between items-center">
           <p>&copy; 2023 Space Wars. All rights reserved.</p>
           <div className="flex space-x-4">

@@ -91,24 +91,25 @@ wss.on('connection', (ws) => {
 
 app.get('/api/highscores', async (req, res) => {
   try {
-    // Connect to the database
     const client = await pool.connect();
-
-    // Query the database to get high scores with usernames
-    const result = await client.query(
-      'SELECT users.username, scores.score FROM users JOIN scores ON users.id = scores.user_id ORDER BY scores.score DESC LIMIT 10'
-    );
-
-    // Release the database connection
+    let query = `
+      SELECT users.username, scores.score
+      FROM users
+      JOIN scores ON users.id = scores.user_id`;
+    if (req.query.top10 === 'true') {
+      query += ' ORDER BY scores.score DESC LIMIT 10';
+    } else {
+      query += ' ORDER BY scores.score DESC';
+    }
+    const result = await client.query(query);
     client.release();
-
-    // Send the high scores data as JSON
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching high scores data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 app.get('/api/user-highscores', async (req, res) => {
   const { username } = req.query;
