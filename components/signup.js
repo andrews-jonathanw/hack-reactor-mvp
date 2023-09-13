@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import axios from 'axios'; // Import Axios
+import axios from 'axios';
 
 export default function SignUp({ setShowForm, successCreateUserMsg, errorCreateUserMsg }) {
   const [formData, setFormData] = useState({
