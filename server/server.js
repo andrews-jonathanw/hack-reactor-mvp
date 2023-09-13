@@ -30,17 +30,35 @@ const authenticateJWT = (req, res, next) => {
   const token = req.cookies.token;
 
   if (token) {
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
       if (err) {
         return res.status(403).json({ error: 'Forbidden' });
       }
-      req.user = user;
+
+      const userId = user.id;
+
+      const findUserQuery = 'SELECT * FROM users WHERE id = $1';
+      try {
+        const result = await pool.query(findUserQuery, [userId]);
+        const dbUser = result.rows[0];
+
+        req.user = {
+          ...user,
+          username: dbUser.username,
+
+        };
+      } catch (error) {
+        console.error("Failed to fetch additional user info:", error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+
       next();
     });
   } else {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 };
+
 
 
 // Initialize a WebSocket server
@@ -92,15 +110,13 @@ app.get('/api/highscores', async (req, res) => {
 
 app.post('/api/users', async (req, res) => {
   try {
-    // Extract user data from the request body
+
     const { username, password, email } = req.body;
 
-    // Validate user data (you can add more validation here)
     if (!username || !password || !email) {
       return res.status(400).json({ error: 'Invalid user data' });
     }
 
-    // Insert the new user into the "users" table
     const insertUserQuery = `
       INSERT INTO users (username, password, email)
       VALUES ($1, $2, $3)
@@ -109,14 +125,25 @@ app.post('/api/users', async (req, res) => {
 
     const result = await pool.query(insertUserQuery, [username, password, email]);
 
-    // Respond with the newly created user
     const newUser = result.rows[0];
     res.status(201).json(newUser);
   } catch (error) {
     console.error('Error creating a new user:', error);
+
+    // Unique violation
+    if (error.code === '23505') {
+      if (error.detail.includes('username')) {
+        return res.status(400).json({ error: 'Username already in use' });
+      }
+      if (error.detail.includes('email')) {
+        return res.status(400).json({ error: 'Email already in use' });
+      }
+    }
+
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 app.post('/api/login', async (req, res) => {
   try {
@@ -139,26 +166,42 @@ app.post('/api/login', async (req, res) => {
 
     // Check if the provided password matches the stored password
     const user = result.rows[0];
+    const userData = {
+      id: user.id,
+      username: user.username
+    };
+    const userId = user.id; // Get the id from the user object
     if (password !== user.password) {
       return res.status(401).json({ error: 'Invalid password' });
     }
 
     // Authentication successful, respond with user data or token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
       expiresIn: '1d', // expires in 1 day
     });
+
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+    const expiresDate = new Date(Date.now() + oneDayInMilliseconds);
+
     res.cookie('token', token, {
       httpOnly: true,
+      expires: expiresDate
     });
     res.cookie('user_info', JSON.stringify({ username, userId }), {
-      expires: '1d',
+      expires: expiresDate
     });
-    res.status(200).json({ message: 'Login successful', user });
+    res.status(200).json({ message: 'Login successful', userData });
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+app.get('/api/rehydrate', authenticateJWT, (req, res) => {
+  console.log('hydratinggggg');
+  res.json({ user: req.user });
+});
+
 
 app.post('/api/logout', (req, res) => {
   res.clearCookie('token');
