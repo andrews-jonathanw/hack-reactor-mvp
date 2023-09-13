@@ -13,7 +13,7 @@ function capitalizeFirstLetter(string) {
 
 export default function App() {
   const [showForm, setShowForm] = useState(null);
-  const [user, setUser] = useState({user: {id: 0, username: 'null'}});
+  const [user, setUser] = useState(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const router = useRouter();
   const { userInfo } = useUser();
@@ -32,6 +32,8 @@ export default function App() {
     if (userInfo !== null) {
       setUser(userInfo);
       setIsLoggingIn(false);
+    } else {
+      setUser(null);
     }
   }, [userInfo]);
 
@@ -48,6 +50,13 @@ export default function App() {
       toast.error("Login first to visit the account page!");
     }
   }, [router.query]);
+
+  useEffect(() => {
+    if (router.query.status === 'loggedOut') {
+      toast.success("You've been logged out!");
+    }
+}, [router.query]);
+
 
 
   const toggleForm = (formType) => {

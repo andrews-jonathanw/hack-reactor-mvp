@@ -17,12 +17,12 @@ export default function Layout({ children }) {
       });
       if (response.status === 200) {
         setUserInfo(null);
-        router.push('/');
+        router.push('/?status=loggedOut');
       }
     } catch (error) {
       console.error('Error logging out:', error);
     }
-  };
+};
 
   return (
     <div className="flex flex-col min-h-screen">
