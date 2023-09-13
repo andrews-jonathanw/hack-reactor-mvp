@@ -10,6 +10,7 @@ function Account() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [fieldToUpdate, setFieldToUpdate] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
   const { userInfo, setUserInfo, isLoading } = useUser();
   const router = useRouter();
 
@@ -67,10 +68,6 @@ function Account() {
         toast.error("Password must be at least 8 characters long");
         return false;
       }
-      if (value === userInfo?.password) {
-        toast.error("New password can't be the same as the current password");
-        return false;
-      }
     }
 
     return true;
@@ -97,8 +94,12 @@ function Account() {
         setFieldToUpdate(null);
       }
     } catch (error) {
-      console.error('Error updating account:', error);
-      toast.error('Error updating account');
+      let errorMessage = 'An unknown error occurred';
+      if (error && error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      }
+      setErrorMessage(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
