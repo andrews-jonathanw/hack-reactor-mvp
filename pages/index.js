@@ -1,5 +1,5 @@
 require('dotenv').config();
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Layout from '../components/layout';
 import SignUp from '../components/signUp';
 import LogIn from '../components/logIn';
@@ -18,6 +18,15 @@ export default function App() {
   const router = useRouter();
   const { userInfo } = useUser();
   const isLoggedIn = userInfo !== null;
+  const prevIsLoggedInRef = useRef();
+
+  useEffect(() => {
+    const prevIsLoggedIn = prevIsLoggedInRef.current;
+    if (prevIsLoggedIn && !isLoggedIn) {
+      successLogoutMsg();
+    }
+    prevIsLoggedInRef.current = isLoggedIn;
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (userInfo !== null) {
@@ -34,7 +43,11 @@ export default function App() {
     }
   }, [isLoggingIn]);
 
-
+  useEffect(() => {
+    if (router.query.needLogin) {
+      toast.error("Login first to visit the account page!");
+    }
+  }, [router.query]);
 
 
   const toggleForm = (formType) => {
@@ -60,7 +73,6 @@ export default function App() {
   const errorCreateUserMsg = (msg) => {
     toast.error(msg);
   };
-
 
   const successLogoutMsg = () => {
     toast.success("You've been logged out!");
