@@ -1,11 +1,13 @@
 import { useRouter } from 'next/router';
 import { useUser } from '../components/UserContext';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 export default function Layout({ children }) {
   const router = useRouter();
   const { userInfo, setUserInfo } = useUser();
   const isLoggedIn = userInfo !== null;
+  const [showFooter, setShowFooter] = useState(false);
 
   const navigateHome = () => {
     router.push('/');
@@ -13,9 +15,13 @@ export default function Layout({ children }) {
 
   const logout = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/logout', {}, {
-        withCredentials: true
-      });
+      const response = await axios.post(
+        'http://localhost:5000/api/logout',
+        {},
+        {
+          withCredentials: true,
+        }
+      );
       if (response.status === 200) {
         setUserInfo(null);
         router.push('/?status=loggedOut');
@@ -23,7 +29,27 @@ export default function Layout({ children }) {
     } catch (error) {
       console.error('Error logging out:', error);
     }
-};
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Check if the user has scrolled to the bottom of the page
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight &&
+        !showFooter
+      ) {
+        setShowFooter(true);
+      }
+    };
+
+    // Add the scroll event listener
+    window.addEventListener('scroll', handleScroll);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [showFooter]);
 
   return (
     <div className="flex flex-col min-h-screen">

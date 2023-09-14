@@ -87,13 +87,21 @@ export default function App() {
 
   return (
     <div className="container mx-auto px-4 flex flex-col items-center justify-center h-screen">
-      <video autoPlay muted loop id="video-bg">
+      {/* Left Ad Space */}
+    <div className="absolute top-[8rem] left-0 h-[70%] w-1/4 bg-yellow-300">
+      {/* Insert your left ad code here */}
+    </div>
+
+    {/* Right Ad Space */}
+    <div className="absolute top-[8rem] right-0 h-[70%] w-1/4 bg-yellow-300">
+      {/* Insert your right ad code here */}
+    </div>
+      <video autoPlay muted loop id="video-bg" className="">
         <source src="./media/main-bg.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
       <Toaster />
-
       {isLoggingIn ? (
         <div className="flex items-center">
           <div className="loader"></div>
@@ -102,9 +110,9 @@ export default function App() {
       ) : (
         <>
           {user && user.username ? (
-            <h2 className="text-2xl font-bold mb-4 mt-[-15%]">Welcome, {capitalizeFirstLetter(user.username)}!</h2>
+            <h2 className="text-2xl text-white font-bold mb-4 mt-[-10%]">Welcome, {capitalizeFirstLetter(user.username)}!</h2>
           ) : (
-            <h2 className="text-2xl font-bold mb-4 mt-[-15%]">Welcome, sign in below!</h2>
+            <h2 className="text-2xl  text-white font-bold mb-4 mt-[-10%]">Welcome, sign in below!</h2>
           )}
 
           <div className="flex flex-col items-center">
@@ -158,11 +166,11 @@ export default function App() {
 
       <style jsx>{`
         #video-bg {
-          position: fixed;
-          top: 0;
+          position: absolute;
+          top: 10%;
           left: 0;
           min-width: 100%;
-          min-height: 100%;
+          max-height: 75%;
           z-index: -1;
         }
 
