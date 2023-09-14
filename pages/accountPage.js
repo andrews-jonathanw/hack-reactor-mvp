@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 
 function Account() {
   const [scores, setScores] = useState([]);
+  const [hiscores, setHiScores] = useState([]);
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -28,15 +29,17 @@ function Account() {
       try {
         if (userInfo) {
           const currentUsername = userInfo.username;
-          const response = await axios.get(`http://localhost:5000/api/user-highscores?username=${currentUsername}`);
-          setScores(response.data);
+          const recent = await axios.get(`http://localhost:5000/api/user-recent-highscores?username=${currentUsername}`);
+          const highest = await axios.get(`http://localhost:5000/api/user-recent-highscores?username=${currentUsername}`);
+          setScores(recent.data);
+          setHiScores(highest.data);
         }
       } catch (error) {
         console.error('Error fetching user scores:', error);
       }
   };
 
-    fetchUserScores();
+  fetchUserScores();
   }, [userInfo]);
 
   const validateField = (field, value) => {
@@ -114,7 +117,7 @@ function Account() {
   return (
     <div className="container mx-auto mt-10 p-5 flex flex-col md:flex-row">
       <Toaster />
-      <div className="w-full md:w-1/2 bg-gray-100 p-5 rounded-lg">
+      <div className="w-full md:w-1/2 bg-gray-100 p-5 rounded-lg mr-5">
         <h2 className="text-2xl mb-5 font-semibold">Your Account</h2>
         <div className="space-y-2">
           <div className="flex items-center justify-between mb-2">
@@ -185,21 +188,37 @@ function Account() {
               </>
             )}
           </div>
-
         </div>
       </div>
-      <div className="w-full md:w-1/2 mt-5 md:mt-0 md:ml-10 p-5 rounded-lg bg-gray-100">
-        <h2 className="text-2xl mb-5 font-semibold">Last 5 Game Scores</h2>
-        <div className="space-y-2">
-          <ul>
-            {scores.map((score, index) => (
-              <li key={index} className="mb-1">
-                <div className="bg-blue-500 text-white font-medium py-1 px-3 rounded">
-                  {score.score}
-                </div>
-              </li>
-            ))}
-          </ul>
+      <div className="w-full mt-5 md:mt-0 flex space-x-5">
+        <div className="w-full md:w-2/4 p-5 rounded-lg bg-gray-100">
+          <h2 className="text-2xl mb-5 font-semibold">Last 5 Game Scores</h2>
+          <div className="space-y-2">
+            <ul>
+              {scores.map((score, index) => (
+                <li key={index} className="mb-1">
+                  <div className="bg-blue-500 text-white font-medium py-1 px-3 rounded">
+                    {score.score}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="w-full md:w-2/4 p-5 rounded-lg bg-gray-100">
+          <h2 className="text-2xl mb-5 font-semibold">Highest 5 Game Scores</h2>
+          <div className="space-y-2">
+            <ul>
+              {hiscores.map((score, index) => (
+                <li key={index} className="mb-1">
+                  <div className="bg-blue-500 text-white font-medium py-1 px-3 rounded flex justify-between items-center">
+                    <span>{score.score}</span>
+                    <span className="text-white text-sm">{new Date(score.created_at).toLocaleDateString('en-US')}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </div>

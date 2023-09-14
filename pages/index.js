@@ -87,7 +87,13 @@ export default function App() {
 
   return (
     <div className="container mx-auto px-4 flex flex-col items-center justify-center h-screen">
+      <video autoPlay muted loop id="video-bg">
+        <source src="./media/main-bg.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
       <Toaster />
+
       {isLoggingIn ? (
         <div className="flex items-center">
           <div className="loader"></div>
@@ -96,9 +102,9 @@ export default function App() {
       ) : (
         <>
           {user && user.username ? (
-            <h2 className="text-2xl font-bold mb-4">Welcome, {capitalizeFirstLetter(user.username)}!</h2>
+            <h2 className="text-2xl font-bold mb-4 mt-[-15%]">Welcome, {capitalizeFirstLetter(user.username)}!</h2>
           ) : (
-            <h2 className="text-2xl font-bold mb-4">Welcome, sign in below!</h2>
+            <h2 className="text-2xl font-bold mb-4 mt-[-15%]">Welcome, sign in below!</h2>
           )}
 
           <div className="flex flex-col items-center">
@@ -135,13 +141,13 @@ export default function App() {
 
           <div className="flex flex-col items-center">
             {showForm === 'signup' && (
-              <div className="bg-gray-100 p-4 rounded-md">
+              <div className="bg-gray-100 p-4 rounded-md" style={{ transform: showForm === 'signup' ? 'translateY(0)' : 'translateY(100%)', transition: 'transform 0.5s' }}>
                 <h3 className="text-xl font-semibold mb-2">Sign Up</h3>
                 <SignUp setShowForm={setShowForm} successCreateUserMsg={successCreateUserMsg} errorCreateUserMsg={errorCreateUserMsg}/>
               </div>
             )}
             {showForm === 'login' && !isLoggedIn && (
-              <div className="bg-gray-100 p-4 rounded-md">
+              <div className="bg-gray-100 p-4 rounded-md" style={{ transform: showForm === 'login' ? 'translateY(0)' : 'translateY(100%)', transition: 'transform 0.5s' }}>
                 <h3 className="text-xl font-semibold mb-2">Log In</h3>
                 <LogIn setShowForm={setShowForm} successLoginMsg={successLoginMsg} setIsLoggingIn={setIsLoggingIn} errorLoginMsg={errorLoginMsg}/>
               </div>
@@ -149,7 +155,17 @@ export default function App() {
           </div>
         </>
       )}
+
       <style jsx>{`
+        #video-bg {
+          position: fixed;
+          top: 0;
+          left: 0;
+          min-width: 100%;
+          min-height: 100%;
+          z-index: -1;
+        }
+
         .loader {
           border: 4px solid rgba(0, 0, 0, 0.1);
           width: 36px;
@@ -170,8 +186,5 @@ export default function App() {
       `}</style>
     </div>
   );
-
-
-
 }
 
