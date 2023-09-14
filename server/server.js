@@ -96,19 +96,29 @@ app.get('/api/highscores', async (req, res) => {
       SELECT users.username, scores.score
       FROM users
       JOIN scores ON users.id = scores.user_id`;
-    if (req.query.top10 === 'true') {
-      query += ' ORDER BY scores.score DESC LIMIT 10';
+    if (req.query.userScores === 'true' && req.query.username) {
+      query += `
+        WHERE users.username = $1
+        ORDER BY scores.score DESC`;
+      const result = await client.query(query, [req.query.username]);
+      client.release();
+      res.json(result.rows);
     } else {
-      query += ' ORDER BY scores.score DESC';
+      if (req.query.top10 === 'true') {
+        query += ' ORDER BY scores.score DESC LIMIT 10';
+      } else {
+        query += ' ORDER BY scores.score DESC';
+      }
+      const result = await client.query(query);
+      client.release();
+      res.json(result.rows);
     }
-    const result = await client.query(query);
-    client.release();
-    res.json(result.rows);
   } catch (error) {
     console.error('Error fetching high scores data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 
 app.get('/api/user-highscores', async (req, res) => {

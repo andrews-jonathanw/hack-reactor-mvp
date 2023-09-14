@@ -41,21 +41,20 @@ export default function App() {
     if (router.query.needLogin) {
       toast.error("Login first to visit the account page!");
     }
-    router.replace({
-      pathname: router.pathname,
-      query: {},
-    });
-  }, [router.query]);
-
-  useEffect(() => {
+    if (router.query.signIn) {
+      toast.error("Login first to play the game!");
+    }
     if (router.query.status === 'loggedOut') {
       toast.success("You've been logged out!");
     }
+  }, [router.query]);
+
+  useEffect(() => {
     router.replace({
       pathname: router.pathname,
       query: {},
     });
-}, [router.query]);
+  }, []);
 
   const toggleForm = (formType) => {
     if (showForm === formType) {

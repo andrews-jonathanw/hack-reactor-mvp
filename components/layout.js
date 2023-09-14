@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useUser } from '../components/UserContext';
 import axios from 'axios';
+
 export default function Layout({ children }) {
   const router = useRouter();
   const { userInfo, setUserInfo } = useUser();
@@ -32,6 +33,7 @@ export default function Layout({ children }) {
             Space Wars
           </h1>
           <div className="flex space-x-4">
+            <button onClick={() => router.push('/gamePage')} className="mx-2">Play</button>
             <button onClick={() => router.push('/accountPage')} className="mx-2">Account</button>
             <button onClick={() => router.push('/leaderboardPage')} className="mx-2">Leaderboard</button>
             <button onClick={() => router.push('/storePage')} className="mx-2">Store</button>

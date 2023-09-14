@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const HighScores = () => {
+
+const HighScores = ({userInfo, viewingAsGuest}) => {
   const [highScores, setHighScores] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isTop10Pressed, setIsTop10Pressed] = useState(false);
+  const [isAllScoresPressed, setIsAllScoresPressed] = useState(false);
+  const [isUsernamePressed, setIsUsernamePressed] = useState(false);
   const [params, setParams] = useState({top10: true});
 
   const fetchHighScores = async (queryParams) => {
@@ -63,11 +67,30 @@ const HighScores = () => {
   }
 
   const handleTop10Click = () => {
+    setIsTop10Pressed(true);
+    setIsAllScoresPressed(false);
     setParams({ top10: true });
   };
 
   const handleAllScoresClick = () => {
+    setIsAllScoresPressed(true);
+    setIsTop10Pressed(false);
     setParams({ allScores: true });
+  };
+
+  const handleUsernameFilterClick = async () => {
+    if (userInfo !== null) {
+      setIsTop10Pressed(false);
+      setIsAllScoresPressed(false);
+      setIsUsernamePressed(!isUsernamePressed);
+      setParams({ userScores: true, username: userInfo.username });
+    } else {
+      handleClearFiltersClick();
+      setIsTop10Pressed(true);
+      setIsAllScoresPressed(false);
+      viewingAsGuest();
+    }
+
   };
 
   const handleClearFiltersClick = () => {
@@ -79,14 +102,6 @@ const HighScores = () => {
     <div className="p-4 bg-gray-100 border border-gray-300 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">High Scores</h2>
       <div className="mb-4 flex items-center">
-        <button
-          onClick={handleClearFiltersClick}
-          className={`bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mr-2 ${
-            params.top10 || params.allScores ? '' : 'hidden'
-          }`}
-        >
-          Clear Filters
-        </button>
         <input
           type="text"
           placeholder="Search by username"
@@ -97,21 +112,51 @@ const HighScores = () => {
       </div>
       <div className="mb-4">
         <button
-          onClick={handleTop10Click}
+          onClick={() => {
+            handleClearFiltersClick();
+            setIsTop10Pressed(true);
+            setIsAllScoresPressed(false);
+          }}
+          className={`bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mr-2 ${
+            isTop10Pressed || isAllScoresPressed || isUsernamePressed ? 'bg-red-600 custom-shadow' : ''
+          }`}
+        >
+          Clear Filters
+        </button>
+
+        <button
+          onClick={() => {
+            handleTop10Click();
+            setIsAllScoresPressed(false); // Clear the other button's pressed state
+          }}
           className={`bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 mr-2 rounded ${
-            params.top10 ? 'bg-blue-600' : ''
+            params.top10 || isTop10Pressed ? 'bg-blue-600 custom-shadow' : ''
           }`}
         >
           Top 10 Scores
+          {params.top10 || isTop10Pressed ? <div className="text-xs">(Sorted by highest first)</div> : null}
         </button>
+
         <button
-          onClick={handleAllScoresClick}
-          className={`bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 mr-2 rounded ${
-            params.allScores ? 'bg-blue-600' : ''
+          onClick={() => {
+            handleAllScoresClick();
+            setIsTop10Pressed(false); // Clear the other button's pressed state
+          }}
+          className={`bg-blue-500 hover.bg-blue-600 text-white py-2 px-4 mr-2 rounded ${
+            params.allScores || isAllScoresPressed ? 'bg-blue-600 custom-shadow' : ''
           }`}
         >
           All Scores
+          {params.allScores || isAllScoresPressed ? <div className="text-xs">(Sorted by highest first)</div> : null}
         </button>
+        <button
+          onClick={handleUsernameFilterClick}
+          className={`bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded ${
+            isUsernamePressed ? 'bg-green-600 custom-shadow' : ''
+          }`}
+          >
+            Your Scores
+          </button>
       </div>
       <div className="leaderboard-max-screen-overflow">
         <ul>

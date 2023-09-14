@@ -2,7 +2,7 @@ import Game from '../components/game';
 import Leaderboard from '../components/leaderboard';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useUser } from '../components/UserContext';
+import { useUser, isLoading } from '../components/UserContext';
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -13,6 +13,14 @@ export default function GamePage() {
   const [username, setUsername] = useState(null);
   const [userId, setUserId] = useState(null);
   const { userInfo, isLoading } = useUser();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!userInfo) {
+        router.push('/?signIn=true');
+      }
+    }
+  }, [userInfo, isLoading, router]);
 
   useEffect(() => {
     if (router.query.validUsername && router.query.userId) {
@@ -46,7 +54,7 @@ export default function GamePage() {
           <h2 className="text-xl font-semibold mb-2 text-left mt-2 ml-2">
             Welcome, {capitalizeFirstLetter(userInfo.username)}!
           </h2>
-          <Leaderboard />
+          <Leaderboard userInfo={userInfo}/>
         </div>
       </div>
     </div>
