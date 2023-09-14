@@ -91,21 +91,54 @@ wss.on('connection', (ws) => {
 
 app.get('/api/highscores', async (req, res) => {
   try {
-    // Connect to the database
     const client = await pool.connect();
-
-    // Query the database to get high scores with usernames
-    const result = await client.query(
-      'SELECT users.username, scores.score FROM users JOIN scores ON users.id = scores.user_id ORDER BY scores.score DESC LIMIT 10'
-    );
-
-    // Release the database connection
-    client.release();
-
-    // Send the high scores data as JSON
-    res.json(result.rows);
+    let query = `
+      SELECT users.username, scores.score, scores.created_at
+      FROM users
+      JOIN scores ON users.id = scores.user_id`;
+    if (req.query.userScores === 'true' && req.query.username) {
+      query += `
+        WHERE users.username = $1
+        ORDER BY scores.score DESC`;
+      const result = await client.query(query, [req.query.username]);
+      client.release();
+      res.json(result.rows);
+    } else {
+      if (req.query.top10 === 'true') {
+        query += ' ORDER BY scores.score DESC LIMIT 10';
+      } else {
+        query += ' ORDER BY scores.score DESC';
+      }
+      const result = await client.query(query);
+      client.release();
+      res.json(result.rows);
+    }
   } catch (error) {
     console.error('Error fetching high scores data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+
+app.get('/api/user-recent-highscores', async (req, res) => {
+  const { username } = req.query;
+  console.log('trying to get user scores', req.query);
+  if (!username) {
+    return res.status(400).json({ error: 'Username parameter is required' });
+  }
+
+  try {
+    const client = await pool.connect();
+    const result = await client.query(
+      'SELECT scores.score, scores.created_at FROM users JOIN scores ON users.id = scores.user_id WHERE users.username = $1 ORDER BY scores.created_at DESC LIMIT 5',
+      [username]
+    );
+    client.release();
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching user scores:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -120,7 +153,7 @@ app.get('/api/user-highscores', async (req, res) => {
   try {
     const client = await pool.connect();
     const result = await client.query(
-      'SELECT scores.score FROM users JOIN scores ON users.id = scores.user_id WHERE users.username = $1 ORDER BY scores.score DESC LIMIT 5',
+      'SELECT scores.score, scores.created_at FROM users JOIN scores ON users.id = scores.user_id WHERE users.username = $1 ORDER BY scores.score DESC LIMIT 5',
       [username]
     );
     client.release();
@@ -130,6 +163,7 @@ app.get('/api/user-highscores', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 
 app.post('/api/users', async (req, res) => {
@@ -282,6 +316,7 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.post('/api/submitScore', authenticateJWT, async (req, res) => {
+  console.log(req.body);
   try {
     const { userId, score } = req.body;
 

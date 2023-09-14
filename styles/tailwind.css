@@ -4,8 +4,8 @@
 @import 'tailwindcss/utilities';
 
 body {
-  margin: 0;
-  overflow: hidden;
+  margin: 10;
+  overflow: auto;
 }
 
 canvas {
@@ -19,3 +19,12 @@ canvas {
   margin: 0 auto;
   display: block;
 }
+
+.leaderboard-max-screen-overflow {
+  height: 25rem;
+  overflow-y: auto;
+}
+
+
+
+
