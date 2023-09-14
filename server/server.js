@@ -153,7 +153,7 @@ app.get('/api/user-highscores', async (req, res) => {
   try {
     const client = await pool.connect();
     const result = await client.query(
-      'SELECT scores.score FROM users JOIN scores ON users.id = scores.user_id WHERE users.username = $1 ORDER BY scores.score DESC LIMIT 5',
+      'SELECT scores.score, scores.created_at FROM users JOIN scores ON users.id = scores.user_id WHERE users.username = $1 ORDER BY scores.score DESC LIMIT 5',
       [username]
     );
     client.release();

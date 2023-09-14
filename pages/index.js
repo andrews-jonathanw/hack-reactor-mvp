@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Layout from '../components/layout';
 import SignUp from '../components/signUp';
 import LogIn from '../components/logIn';
+import CursorGif from '../components/cursorGif';
 import toast, { Toaster } from 'react-hot-toast';
 import { useUser } from '../components/UserContext';
 import { useRouter } from 'next/router';
@@ -84,24 +85,16 @@ export default function App() {
     toast.success("You've been logged out!");
   };
 
-
   return (
-    <div className="container mx-auto px-4 flex flex-col items-center justify-center h-screen">
-      {/* Left Ad Space */}
-    <div className="absolute top-[8rem] left-0 h-[70%] w-1/4 bg-yellow-300">
-      {/* Insert your left ad code here */}
-    </div>
-
-    {/* Right Ad Space */}
-    <div className="absolute top-[8rem] right-0 h-[70%] w-1/4 bg-yellow-300">
-      {/* Insert your right ad code here */}
-    </div>
+    <div className="container relative mx-auto px-4 flex flex-col items-center justify-center h-screen">
+      <CursorGif />
       <video autoPlay muted loop id="video-bg" className="">
         <source src="./media/main-bg.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
       <Toaster />
+
       {isLoggingIn ? (
         <div className="flex items-center">
           <div className="loader"></div>
@@ -167,7 +160,7 @@ export default function App() {
       <style jsx>{`
         #video-bg {
           position: absolute;
-          top: 10%;
+          top: 5%;
           left: 0;
           min-width: 100%;
           max-height: 75%;

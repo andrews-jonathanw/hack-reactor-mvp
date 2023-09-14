@@ -30,7 +30,7 @@ function Account() {
         if (userInfo) {
           const currentUsername = userInfo.username;
           const recent = await axios.get(`http://localhost:5000/api/user-recent-highscores?username=${currentUsername}`);
-          const highest = await axios.get(`http://localhost:5000/api/user-recent-highscores?username=${currentUsername}`);
+          const highest = await axios.get(`http://localhost:5000/api/user-highscores?username=${currentUsername}`);
           setScores(recent.data);
           setHiScores(highest.data);
         }
