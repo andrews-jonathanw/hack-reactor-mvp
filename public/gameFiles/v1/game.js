@@ -19,15 +19,10 @@ import {
   ctx,
   draw,
   animationId,
-  initializeGame,
 } from './main.js';
 
 console.log('UserId:', userId);
 
-import { startTimer, stopTimer, resetTimer, getGameTime } from './timer.js';
-
-
-export let gameState = "menu";
 export let gameOver = false;
 export let win = false;
 export let isPaused = false;
@@ -35,10 +30,6 @@ export let round = 1;
 export let score = 0;
 export let lives = 3;
 export const powerUpOrbs = [];
-
-
-
-
 
 import {
   player,
@@ -56,7 +47,7 @@ const bulletSpeed = 5;
 export function drawScore() {
   ctx.font = "20px Arial";
   ctx.fillStyle = "white";
-  ctx.fillText("Score: " + score, 360, 30);
+  ctx.fillText("Score: " + score, 380, 30);
 }
 
 export function drawRound() {
@@ -80,18 +71,18 @@ ctx.closePath();
 }
 
 export function drawAliens() {
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      const alien = alienMatrix[row][col];
-      if (alien.alive) {
-        ctx.beginPath();
-        ctx.rect(alien.x, alien.y, alienWidth, alienHeight);
-        ctx.fillStyle = alien.color; // Use the color property of the alien object
-        ctx.fill();
-        ctx.closePath();
-      }
+for (let row = 0; row < numRows; row++) {
+  for (let col = 0; col < numCols; col++) {
+    const alien = alienMatrix[row][col];
+    if (alien.alive) {
+      ctx.beginPath();
+      ctx.rect(alien.x, alien.y, alienWidth, alienHeight);
+      ctx.fillStyle = alien.color; // Use the color property of the alien object
+      ctx.fill();
+      ctx.closePath();
     }
   }
+}
 }
 
 export function drawBullet(bullet) {
@@ -102,100 +93,75 @@ export function drawBullet(bullet) {
   ctx.closePath();
 }
 
-
-export function drawTimer() {
-  ctx.font = '24px Arial';
-  ctx.fillStyle = 'white';
-
-  // Get the current game time from the timer module
-  const gameTime = getGameTime();
-
-  // Format the game time into minutes and seconds
-  const minutes = Math.floor(gameTime / 60);
-  const seconds = gameTime % 60;
-
-  // Draw the timer text at the top of the canvas
-  ctx.fillText(`Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`, 680, 30);
-}
-
-let immuneUntil = 0; // The time until which the player is immune to bullets
-
 export function collisionDetection() {
-  const currentTime = Date.now(); // Get the current time
-
-  for (let i = 0; i < player.bullets.length; i++) {
-    const bullet = player.bullets[i];
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-        const alien = alienMatrix[row][col];
-        if (alien.alive) {
-          if (
-            bullet.x < alien.x + alienWidth &&
-            bullet.x + bulletWidth > alien.x &&
-            bullet.y < alien.y + alienHeight &&
-            bullet.y + bulletHeight > alien.y
-          ) {
-            if (alien.hp === 1) {
-              alien.destroy();
-              score += alien.pointValue;
-            } else if (alien.hp === 2) {
-              // If it's a 2HP alien, reduce its HP by 1
-              alien.hp -= 1;
-              alien.color = "green";
-            }
-            // Remove the bullet
-            player.bullets.splice(i, 1);
+for (let i = 0; i < player.bullets.length; i++) {
+  const bullet = player.bullets[i];
+  for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+      const alien = alienMatrix[row][col];
+      if (alien.alive) {
+        if (
+          bullet.x < alien.x + alienWidth &&
+          bullet.x + bulletWidth > alien.x &&
+          bullet.y < alien.y + alienHeight &&
+          bullet.y + bulletHeight > alien.y
+        ) {
+          // Collision detected
+          if (alien.hp === 1) {
+            alien.destroy();
+            score += alien.pointValue;
+          } else if (alien.hp === 2) {
+            // If it's a 2HP alien, reduce its HP by 1
+            alien.hp -= 1;
+            alien.color = "green";
           }
+          // Remove the bullet
+          player.bullets.splice(i, 1);
         }
       }
     }
   }
-
-  for (let i = alienBullets.length - 1; i >= 0; i--) {
-    const alienBullet = alienBullets[i];
-    if (
-      alienBullet.x < player.spaceshipX + player.width &&
-      alienBullet.x + bulletWidth > player.spaceshipX &&
-      alienBullet.y < canvas.height - player.height &&
-      alienBullet.y + bulletHeight > canvas.height - player.height
-    ) {
-      // Check if the player is immune
-      if (currentTime > immuneUntil) {
-        handlePlayerHit();
-      }
-      alienBullets.splice(i, 1);
-    }
+}
+for (let i = alienBullets.length - 1; i >= 0; i--) {
+  const alienBullet = alienBullets[i];
+  if (
+    alienBullet.x < player.spaceshipX + player.width &&
+    alienBullet.x + bulletWidth > player.spaceshipX &&
+    alienBullet.y < canvas.height - player.height &&
+    alienBullet.y + bulletHeight > canvas.height - player.height
+  ) {
+    handlePlayerHit();
+    alienBullets.splice(i, 1);
   }
+}
 }
 
 export function handlePlayerHit() {
-  lives -= 1;
-  immuneUntil = Date.now() + 1000; // Make the player immune for 1 second
+lives -= 1;
 }
 
-
 export function checkGameOver() {
-  if (lives === 0) {
-    resetAliens();
-    gameOver = true;
-    return;
-  }
-  for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-          const alien = alienMatrix[row][col];
-          if (alien.alive && alien.y + alienHeight >= canvas.height - spaceshipHeight) {
-              // Reset alien positions when game over
-              resetAliens();
-              gameOver = true;
-              return;
-          }
-      }
-  }
+if (lives <= 0) {
+  resetAliens();
+  gameOver = true;
+  return;
+}
+for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+        const alien = alienMatrix[row][col];
+        if (alien.alive && alien.y + alienHeight >= canvas.height - spaceshipHeight) {
+            // Reset alien positions when game over
+            resetAliens();
+            gameOver = true;
+            return;
+        }
+    }
+}
 
-  // Additional condition: If all aliens are destroyed (win condition met), set game over to true
-  if (win) {
-      gameOver = true;
-  }
+// Additional condition: If all aliens are destroyed (win condition met), set game over to true
+if (win) {
+    gameOver = true;
+}
 }
 
 
@@ -225,7 +191,6 @@ console.log("Starting next round.");
 gameOver = false;
 win = false;
 round++;
-resetTimer();
 player.bullets.length = 0;
 alienBullets.length = 0;
 for (let row = 0; row < numRows; row++) {
@@ -245,7 +210,6 @@ score = 0;
 lives = 3;
 round = 1;
 win = false;
-resetTimer();
 player.bullets.length = 0;
 alienBullets.length = 0;
 powerUpOrbs.length = 0;
@@ -295,22 +259,8 @@ export function handleButtonClick(event) {
   }
 }
 
-window.addEventListener("keydown", (event) => {
-  if (event.key === " ") { // Space key
-    if (gameState === "menu") {
-      // Transition to the playing state
-      gameState = "playing";
-      initializeGame(); // Initialize the game
-      startTimer();
-    } else if (gameState === "paused") {
-      // Resume the game
-      gameState = "playing";
-    }
-  }
-});
-
 function sendScoreToAPI(score) {
-  const apiUrl = 'ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/submitScore';
+  const apiUrl = 'http://localhost:5000/api/submitScore';
 
   axios.post(apiUrl, { userId, score }, { withCredentials: true })
     .then((response) => {
@@ -325,13 +275,9 @@ function sendScoreToAPI(score) {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     isPaused = !isPaused;
-    if (isPaused) {
-      // Pause the game loop and timer
-      stopTimer();
-    } else {
-      // Resume the game loop and timer
-      startTimer();
-      animationId = requestAnimationFrame(draw); // Resume the game loop
+    if (!isPaused) {
+      // Resume the game loop
+      let animationId = requestAnimationFrame(draw);
     }
   }
 });

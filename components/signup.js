@@ -49,7 +49,7 @@ export default function SignUp({ setShowForm, successCreateUserMsg, errorCreateU
 
     try {
       // Send a POST request to your server to create a new user
-      const response = await axios.post('http://localhost:5000/api/users', newUser);
+      const response = await axios.post('ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/users', newUser);
 
       if (response.status === 201) {
         console.log('New user created:', response.data);
