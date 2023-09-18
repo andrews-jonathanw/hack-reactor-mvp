@@ -310,7 +310,7 @@ window.addEventListener("keydown", (event) => {
 });
 
 function sendScoreToAPI(score) {
-  const apiUrl = 'http://localhost:5000/api/submitScore';
+  const apiUrl = 'ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/submitScore';
 
   axios.post(apiUrl, { userId, score }, { withCredentials: true })
     .then((response) => {
