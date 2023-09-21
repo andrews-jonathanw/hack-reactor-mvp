@@ -5,8 +5,7 @@ body {
 
 canvas {
   display: block;
-  background-image: url('space-2.jpg'); /* Set the background image URL */
-  background-size: 100% 100%; /* Set the background size to cover the entire canvas */
+  background-color: black;
   margin: 0 auto;
 }
 
@@ -15,4 +14,3 @@ canvas {
   margin: 0 auto;
   display: block;
 }
-

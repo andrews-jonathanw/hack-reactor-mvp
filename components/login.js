@@ -45,7 +45,7 @@ export default function LogIn({ setShowForm, successLoginMsg, setIsLoggingIn, er
       console.log('Starting login attempt...');
       setIsLoggingIn(true);
 
-      const response = await axios.post('ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/login', userCredentials, {
+      const response = await axios.post('http://localhost:5000/api/login', userCredentials, {
         withCredentials: true,
       });
 

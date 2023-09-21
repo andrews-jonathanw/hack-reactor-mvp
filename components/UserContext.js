@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/rehydrate', { withCredentials: true })
+    axios.get('http://localhost:5000/api/rehydrate', { withCredentials: true })
       .then(response => {
         console.log("Received data:", response.data);
         if (response.data) {

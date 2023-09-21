@@ -1,6 +1,6 @@
 import { canvas, ctx, matrixX, matrixY } from "./main.js";
 import { PowerUpOrb, applyPowerUpEffect } from "./powerups.js";
-import { powerUpOrbs, isPaused, gameState } from "./game.js"
+import { powerUpOrbs } from "./game.js"
 
 // Aliens
 export const alienWidth = 20;
@@ -74,7 +74,7 @@ export class Alien2HP extends Alien {
   }
 
   fire() {
-    if (!this.isFiring && this.alive && this.canFire && gameState === 'playing') {
+    if (!this.isFiring && this.alive && this.canFire) { // Check if the alien is alive and can fire
       const bulletX = this.x + this.width / 2 - bulletWidth / 2;
       const bulletY = this.y + this.height;
       const bullet = {
@@ -102,8 +102,7 @@ export class Alien2HP extends Alien {
       this.canFire = true; // Enable firing after the delay
     }, this.fireDelay);
   }
-}
-
+};
 
 
 export function moveAliens() {

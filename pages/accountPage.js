@@ -29,8 +29,8 @@ function Account() {
       try {
         if (userInfo) {
           const currentUsername = userInfo.username;
-          const recent = await axios.get(`ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/user-recent-highscores?username=${currentUsername}`);
-          const highest = await axios.get(`ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/user-highscores?username=${currentUsername}`);
+          const recent = await axios.get(`http://localhost:5000/api/user-recent-highscores?username=${currentUsername}`);
+          const highest = await axios.get(`http://localhost:5000/api/user-highscores?username=${currentUsername}`);
           setScores(recent.data);
           setHiScores(highest.data);
         }
@@ -82,7 +82,7 @@ function Account() {
     }
 
     try {
-      const response = await axios.patch(`ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/update/${field}`, { value }, { withCredentials: true });
+      const response = await axios.patch(`http://localhost:5000/api/update/${field}`, { value }, { withCredentials: true });
       if (response.status === 200) {
         toast.success("Update Successful!");
 

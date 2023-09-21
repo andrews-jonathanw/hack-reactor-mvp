@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = ['ec2-3-22-234-154.us-east-2.compute.amazonaws.com:3000', null];
+    const allowedOrigins = ['http://localhost:3000', null];
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -205,7 +205,7 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-app.patch('/api/update/:field', async (req, res) => {
+app.patch('/api/update/:field', authenticateJWT, async (req, res) => {
   const { field } = req.params;
   const { value } = req.body;
   const userId = req.user.id;
@@ -315,7 +315,7 @@ app.post('/api/logout', (req, res) => {
   res.status(200).json({ message: 'Logged out' });
 });
 
-app.post('/api/submitScore', async (req, res) => {
+app.post('/api/submitScore', authenticateJWT, async (req, res) => {
   console.log(req.body);
   try {
     const { userId, score } = req.body;

@@ -12,7 +12,7 @@ const HighScores = ({userInfo, viewingAsGuest}) => {
 
   const fetchHighScores = async (queryParams) => {
     try {
-      const response = await axios.get('ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/highscores', {
+      const response = await axios.get('http://localhost:5000/api/highscores', {
         params: queryParams,
       });
 

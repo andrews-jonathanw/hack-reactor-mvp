@@ -15,7 +15,7 @@ export default function Layout({ children }) {
   const logout = async () => {
     try {
       const response = await axios.post(
-        'ec2-3-22-234-154.us-east-2.compute.amazonaws.com:5000/api/logout',
+        'http://localhost:5000/api/logout',
         {},
         {
           withCredentials: true,
